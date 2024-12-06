@@ -33,7 +33,7 @@ Complete!
 
 Yes, dependencies available!
 
-Now we install the plugin
+Now we install the plugin source. Once more, choose the version that fit your need.
 ```bash
 wget --no-check-certificate -O nagios-plugins.tar.gz https://github.com/nagios-plugins/nagios-plugins/releases/download/release-x.x.xx/nagios-plugins-x.x.xx.tar.gz
 tar zxf nagios-plugins.tar.gz
