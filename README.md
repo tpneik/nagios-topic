@@ -477,10 +477,8 @@ Yes, we can see out result now.
 
 
 At this point, we can temporariy conclude that we have done installing Nagios. But, we still cannot use it yet!
-
-The next point:
-
-Setup plugin
-Setup command
-Setup our custom command
-Setup alert
+Read the documentation sequentally as: 
+1. Setup plugin
+2. Setup command
+3. Setup our custom command
+4. Setup alert
