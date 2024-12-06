@@ -478,7 +478,8 @@ Yes, we can see out result now.
 
 At this point, we can temporariy conclude that we have done installing Nagios. But, we still cannot use it yet!
 Read the documentation sequentally as: 
-1. Setup plugin
+1. [Setup plugin](./doc/setup_plugin.MD)
+2. [Setup NDOUTILS](./doc/ndoutils.MD)
 2. Setup command
 3. Setup our custom command
 4. Setup alert
