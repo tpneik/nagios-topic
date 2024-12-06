@@ -1,33 +1,44 @@
 #!/bin/bash
 
-# Define Nagios variables
-NOTIFICATIONTYPE=$1
-HOSTNAME=$2
-HOSTSTATE=$3
-HOSTADDRESS=$4
-HOSTOUTPUT=$5
-LONGDATETIME=$6
-CONTACTEMAIL=$7
+while getopts "n:d:a:r:s:t:o:e:" opt; do
+    case $opt in
+        n) NOTIFICATIONTYPE=$OPTARG ;;  # Notification Type
+        d) SERVICEDESC=$OPTARG ;;       # Service Description
+        a) HOSTALIAS=$OPTARG ;;         # Host Alias
+        r) HOSTADDRESS=$OPTARG ;;       # Host Address
+        s) SERVICESTATE=$OPTARG ;;      # Service State
+        t) LONGDATETIME=$OPTARG ;;      # Long Date/Time
+        o) SERVICEOUTPUT=$OPTARG ;;     # Service Output
+        e) CONTACTEMAIL=$OPTARG ;;      # Contact Email
+        *) 
+           echo "Usage: $0 -n <notificationtype> -d <servicedesc> -a <hostalias> -r <hostaddress> -s <servicestate> -t <longdatetime> -o <serviceoutput> -e <contactemail>"
+           exit 3 ;;
+    esac
+done
 
-
-if [ "$HOSTSTATE" == "DOWN" ]; then
-    SUBJECT="🔥 Critical Alert: $HOSTNAME is $HOSTSTATE **"
-else
-    SUBJECT="🔔 Alert: $HOSTNAME is $HOSTSTATE **"
+# Validate that all required arguments are provided
+if [ -z "$NOTIFICATIONTYPE" ] || [ -z "$SERVICEDESC" ] || [ -z "$HOSTALIAS" ] || [ -z "$HOSTADDRESS" ] || [ -z "$SERVICESTATE" ] || [ -z "$LONGDATETIME" ] || [ -z "$SERVICEOUTPUT" ] || [ -z "$CONTACTEMAIL" ]; then
+    echo "Usage: $0 -n <notificationtype> -d <servicedesc> -a <hostalias> -r <hostaddress> -s <servicestate> -t <longdatetime> -o <serviceoutput> -e <contactemail>"
+    exit 1
 fi
+
+echo "Notification Type: $NOTIFICATIONTYPE"
+echo "Hostname: $HOSTNAME"
+echo "Host State: $HOSTSTATE"
+echo "Host Address: $HOSTADDRESS"
+echo "Host Output: $HOSTOUTPUT"
+echo "Long Date Time: $LONGDATETIME"
+echo "Contact Email: $CONTACTEMAIL"
+echo "ALIAS: $HOSTALIAS"
 
 
 # Set the table color based on the host state
-if [ "$HOSTSTATE" == "WARNING" ]; then
-    TABLE_COLOR="#FFAA1D"  # Yellow background
-elif [ "$HOSTSTATE" == "CRITICAL" ]; then
-    TABLE_COLOR="#E32227"  # Red background
-else
-    TABLE_COLOR="#3EB489"  # Green background (for OK or other states)
-fi
+RIBON_TABLE_COLOR="#BEBB1C"  
+TABLE_COLOR="#FFFDD0"  
+
 
 # Customize the subject
-SUBJECT="** $NOTIFICATIONTYPE Host Alert: $HOSTNAME is $HOSTSTATE **"
+SUBJECT="$NOTIFICATIONTYPE - Service Alert: $HOSTALIAS"
 
 # Define the HTML email content with a color-coded table
 HTML_CONTENT=$(cat <<EOF
@@ -36,100 +47,64 @@ HTML_CONTENT=$(cat <<EOF
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nagios Notification</title>
+    <title>Notification Table</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background-color: #ffffff;
-            border: 1px solid #dddddd;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background-color: $TABLE_COLOR;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-            font-size: 20px;
-        }
-        .content {
-            padding: 20px;
-        }
         table {
-            width: 100%;
             border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid #dddddd;
+            width: 50%;
+            margin: auto; /* Center the table */
         }
         th, td {
             padding: 10px;
             text-align: left;
         }
         th {
-            background-color: $TABLE_COLOR;
-            color: white;
+            background-color: $RIBON_TABLE_COLOR;
         }
-        .footer {
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
-            color: #666666;
-            background-color: #f9f9f9;
+        td {
+            background-color: $TABLE_COLOR;
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <div class="header">
-            🌟 Nagios Alert Notification 🌟
-        </div>
-        <div class="content">
-            <table>
-                <tr>
-                    <th>Field</th>
-                    <th>Value</th>
-                </tr>
-                <tr>
-                    <td>Notification Type</td>
-                    <td>$NOTIFICATIONTYPE</td>
-                </tr>
-                <tr>
-                    <td>Host</td>
-                    <td>$HOSTNAME</td>
-                </tr>
-                <tr>
-                    <td>State</td>
-                    <td>$HOSTSTATE</td>
-                </tr>
-                <tr>
-                    <td>Address</td>
-                    <td>$HOSTADDRESS</td>
-                </tr>
-                <tr>
-                    <td>Info</td>
-                    <td>$HOSTOUTPUT</td>
-                </tr>
-                <tr>
-                    <td>Date/Time</td>
-                    <td>$LONGDATETIME</td>
-                </tr>
-            </table>
-        </div>
-        <div class="footer">
-            &copy; 2024 Nagios Monitoring | <a href="http://192.168.18.150/nagios" style="color: #007bff; text-decoration: none;">Nagios Dashboard</a>
-        </div>
-    </div>
+
+<table border="1">
+  <tr>
+    <th colspan="2">Notification Details</th>
+  </tr>
+  <tr>
+    <td><b>Notification Type</b></td>
+    <td>$NOTIFICATIONTYPE</td>
+  </tr>
+  <tr>
+    <td><b>Service</b></td>
+    <td>$SERVICEDESC</td>
+  </tr>
+  <tr>
+    <td><b>Host</b></td>
+    <td>$HOSTALIAS</td>
+  </tr>
+  <tr>
+    <td><b>Address</b></td>
+    <td>$HOSTADDRESS</td>
+  </tr>
+  <tr>
+    <td><b>State</b></td>
+    <td>$SERVICESTATE</td>
+  </tr>
+  <tr>
+    <td><b>Date/Time</b></td>
+    <td>$LONGDATETIME</td>
+  </tr>
+  <tr>
+    <td><b>Additional Info</b></td>
+    <td>$SERVICEOUTPUT</td>
+  </tr>
+</table>
+
 </body>
 </html>
+
 EOF
 )
 
